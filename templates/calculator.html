@@ -1,0 +1,428 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block title %}Rainwater Harvesting Calculator{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/calculator.css">
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <i class="fas fa-tint"></i>
+            <h1>Rainwater Harvesting Calculator</h1>
+            <p>Calculate your rooftop's water harvesting potential</p>
+        </div>
+    </header>
+
+    <!-- District Search Section -->
+    <section class="search-section">
+        <h2><i class="fas fa-search"></i> Find Your District</h2>
+        <div class="search-container">
+            <input type="text" 
+                   id="districtSearch" 
+                   placeholder="Search districts (e.g., Mumbai, Chennai)..." 
+                   autocomplete="off">
+            <button id="searchBtn" class="btn btn-secondary">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+        <div id="searchResults" class="search-results"></div>
+    </section>
+
+    <!-- Calculator Form -->
+    <section class="calculator-section">
+        <h2><i class="fas fa-calculator"></i> Calculate Water Harvesting</h2>
+        <form id="calculatorForm" class="calculator-form">
+            <div class="form-group">
+                <label for="district">
+                     District Name 
+                </label>
+                <input type="text" 
+                       id="district" 
+                       name="district_name" 
+                       placeholder="Enter district name (e.g., Mumbai)" 
+                       required>
+                {% comment %} <small class="help-text">Use the search above to find available districts</small> {% endcomment %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="length">
+                         Roof Length (meters) 
+                    </label>
+                    <input type="number" 
+                           id="length" 
+                           name="length" 
+                           step="0.1" 
+                           min="0.1" 
+                           placeholder="e.g., 15.5" 
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="width">
+                         Roof Width (meters) 
+                    </label>
+                    <input type="number" 
+                           id="width" 
+                           name="width" 
+                           step="0.1" 
+                           min="0.1" 
+                           placeholder="e.g., 12.0" 
+                           required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dwellers">
+                         Number of Dwellers 
+                    </label>
+                    <input type="number" 
+                           id="dwellers" 
+                           name="number_of_dwellers" 
+                           min="1" 
+                           placeholder="e.g., 4" 
+                           required>
+                </div>
+            
+                <div class="form-group roof-type-container">
+                    <label for="roofType">
+                         Roof Type 
+                    </label>
+                    <div class="custom-dropdown">
+                        <button type="button" class="dropdown-toggle" id="roofTypeToggle">
+                            <span class="selected-option">Select Roof Type</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-option" data-value="RCC">RCC / Terrace / Metal Sheet</div>
+                            <div class="dropdown-option" data-value="TILE ROOF">Tile Roof</div>
+                            <div class="dropdown-option" data-value="ASBESTOS">Asbestos / Rough Surface</div>
+                            <div class="dropdown-option" data-value="GREEN ROOF">Green Roof / Soil</div>
+                            <div class="dropdown-option" data-value="OTHER">Other</div>
+                        </div>
+                        <input type="hidden" id="roofType" name="roof_type" required>
+                    </div>
+                </div>
+            </div>
+            
+            {% if user.is_authenticated %}
+            <button type="submit" class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculate Water Harvest
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-primary" onclick="openModal('login-modal'); closeSidebar();">
+                <i class="fas fa-calculator"></i> Calculate Water Harvest
+            </button>
+            {% endif %}
+        </form>
+    </section>
+
+    <!-- Loading State -->
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p>Calculating your rainwater harvesting potential...</p>
+    </div>
+
+    <!-- Error Messages -->
+    <div id="errorMessage" class="error-message hidden">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="error-content">
+            <h3>Error</h3>
+            <p id="errorText"></p>
+        </div>
+    </div>
+
+    <!-- Results Section - Updated Row-wise Layout -->
+<section id="resultsSection" class="results-section hidden">
+    <h2><i class="fas fa-chart-bar"></i> Your Rainwater Harvesting Results</h2>
+    
+    <div class="results-container">
+        <!-- First Row: Location, Roof, and Usage Analysis -->
+        <div class="result-row">
+            <div class="result-card info-card">
+                <div class="card-header">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Location Information</h3>
+                </div>
+                <div class="card-content">
+                    <div class="result-item">
+                        <span class="label">District:</span>
+                        <span id="resultDistrict" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">State:</span>
+                        <span id="resultState" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Annual Rainfall:</span>
+                        <span id="resultRainfall" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Number of Dwellers:</span>
+                        <span id="resultDwellers" class="value">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card roof-card">
+                <div class="card-header">
+                    <i class="fas fa-home"></i>
+                    <h3>Roof Specifications</h3>
+                </div>
+                <div class="card-content">
+                    <div class="result-item">
+                        <span class="label">Roof Area:</span>
+                        <span id="resultRoofArea" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Roof Type:</span>
+                        <span id="resultRoofType" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Runoff Coefficient:</span>
+                        <span id="resultRunoffCoeff" class="value">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card usage-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Water Usage Analysis</h3>
+                </div>
+                <div class="card-content">
+                    <div class="result-item">
+                        <span class="label">Daily Requirement:</span>
+                        <span id="resultDailyUsage" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Annual Requirement:</span>
+                        <span id="resultAnnualUsage" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Water Security:</span>
+                        <span id="resultWaterSecurity" class="value security-level">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Row: Water Harvesting Potential and Harvest vs Consumption Analysis -->
+        <div class="result-row">
+            <div class="result-card harvest-card highlight">
+                <div class="card-header">
+                    <i class="fas fa-tint"></i>
+                    <h3>Water Harvesting Potential</h3>
+                </div>
+                <div class="card-content">
+                    <div class="result-item main-result">
+                        <span class="label">Annual Water Harvest:</span>
+                        <span id="resultWaterLiters" class="value big">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">In Gallons:</span>
+                        <span id="resultWaterGallons" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">System Efficiency:</span>
+                        <span id="resultEfficiency" class="value efficiency">-</span>
+                    </div>
+                    <div class="water-visual">
+                        <div class="water-tank">
+                            <div id="waterLevel" class="water-fill"></div>
+                            <span class="tank-label">Harvest Efficiency</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card chart-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>📊 Harvest vs Consumption Analysis</h3>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <img id="harvestConsumptionChart" 
+                             src="" 
+                             alt="Harvest vs consumption chart will appear here" 
+                             style="width: 100%; height: auto; display: none;">
+                        <div id="harvestConsumptionChartLoading" class="chart-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Loading harvest vs consumption chart...</span>
+                        </div>
+                        <div id="harvestConsumptionChartError" class="chart-error" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Chart not available for this district</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Third Row: Cost Analysis, Technical Specs, and Enhanced Analysis -->
+        <div class="result-row">
+            <div class="result-card cost-card highlight">
+                <div class="card-header">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <h3>💰 Cost Analysis & ROI</h3>
+                </div>
+                <div class="card-content">
+                    <div class="result-item">
+                        <span class="label">Installation Cost:</span>
+                        <span id="resultInstallCost" class="value big">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Annual Savings:</span>
+                        <span id="resultAnnualSavings" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Payback Period:</span>
+                        <span id="resultPayback" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">30-Year ROI:</span>
+                        <span id="resultROI" class="value">-</span>
+                    </div>
+                    {% comment %} <div class="cost-breakdown">
+                        <small id="resultCostBreakdown" class="help-text">-</small>
+                    </div> {% endcomment %}
+                </div>
+            </div>
+
+            <div class="result-card tech-card">
+                <div class="card-header">
+                    <i class="fas fa-cogs"></i>
+                    <h3>🔧 Technical Specifications</h3>
+                </div>
+                <div class="card-content">
+                    <div class="result-item">
+                        <span class="label">Tank Volume:</span>
+                        <span id="resultTankVolume" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">First Flush Diversion:</span>
+                        <span id="resultFirstFlush" class="value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Pit Diameter:</span>
+                        <span id="resultPitDiameter" class="value">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card enhanced-rec-card">
+                <div class="card-header">
+                    <i class="fas fa-star"></i>
+                    <h3>Enhanced Analysis</h3>
+                </div>
+                <div class="card-content">
+                    <div id="resultEnhancedRecommendations" class="enhanced-recommendations">-</div>
+                </div>
+            </div>
+        </div>
+        <!-- 3D Model Section -->
+        <div class="model-link-section">
+            <button id="view3dModelLink" class="btn btn-info model-link-btn">
+                <i class="fas fa-cube"></i> Click here to see 3D model 
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <div id="3d-model-view" class="model-view-section hidden">
+            <h3><i class="fas fa-cube"></i> 3D Model Visualization</h3>
+            <button id="close3dModel" class="btn btn-danger close-model-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="sketchfab-embed-wrapper"> <iframe title="Yellow house with water system" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/823bf933df244e51b65093123ea87e38/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/yellow-house-with-water-system-823bf933df244e51b65093123ea87e38?utm_medium=embed&utm_campaign=share-popup&utm_content=823bf933df244e51b65093123ea87e38" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Yellow house with water system </a> by <a href="https://sketchfab.com/manishshaw01012008?utm_medium=embed&utm_campaign=share-popup&utm_content=823bf933df244e51b65093123ea87e38" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> manishshaw01012008 </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=823bf933df244e51b65093123ea87e38" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+    </div>
+
+    
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button id="newCalculation" class="btn btn-secondary">
+            <i class="fas fa-redo"></i> New Calculation
+        </button>
+        {% if user.is_authenticated %}
+        <button id="saveResults" class="btn btn-success">
+            <i class="fas fa-save"></i> Save Results
+        </button>
+        {% endif %}
+        <button id="downloadResults" class="btn btn-info">
+            <i class="fas fa-download"></i> Download Report
+        </button>
+        <button id="shareResults" class="btn btn-primary">
+            <i class="fas fa-share-alt"></i> Share Results
+        </button>
+    </div>
+</section>
+
+   
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<script src="/static/js/calculator.js"></script>
+<script>
+    // 3D Model toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const view3dModelLink = document.getElementById('view3dModelLink');
+    const close3dModelBtn = document.getElementById('close3dModel');
+    const modelViewSection = document.getElementById('3d-model-view');
+    
+    if (view3dModelLink && modelViewSection) {
+        view3dModelLink.addEventListener('click', function() {
+            modelViewSection.classList.remove('hidden');
+            // Smooth scroll to the 3D model section
+            modelViewSection.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+    
+    if (close3dModelBtn && modelViewSection) {
+        close3dModelBtn.addEventListener('click', function() {
+            modelViewSection.classList.add('hidden');
+        });
+    }
+});
+</script>
+{% endblock %}
+
+    <!-- API Status -->
+    {% comment %} <div class="api-status">
+        <span id="apiStatus" class="status-indicator">
+            <i class="fas fa-circle"></i> API Status: <span id="statusText">Checking...</span>
+        </span>
+    </div> {% endcomment %}
+
+            {% comment %}
+                <div class="result-card chart-card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>Monthly Rainfall Pattern</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <img id="rainfallChart" 
+                                 src="" 
+                                 alt="Monthly rainfall chart will appear here" 
+                                 style="width: 100%; height: auto; display: none;">
+                            <div id="chartLoading" class="chart-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>Loading rainfall chart...</span>
+                            </div>
+                            <div id="chartError" class="chart-error" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>Chart not available for this district</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endcomment %}

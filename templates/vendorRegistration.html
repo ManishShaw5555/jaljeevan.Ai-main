@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Registration - JalJeevan.AI</title>
+    <style>
+                    :root {
+            --primary-dark: #0a1929;
+            --primary-medium: #0d2337;
+            --primary-light: #143d66;
+            --accent-blue: #2196f3;
+            --accent-teal: #00e5ff;
+            --text-primary: #e6f7ff;
+            --text-secondary: #b3e0ff;
+            --glow-color: rgba(33, 150, 243, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 50%, var(--primary-light) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Rain animation */
+        .rain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, var(--accent-teal));
+            border-radius: 0 0 5px 5px;
+            opacity: 0.6;
+            animation: rain linear infinite;
+        }
+
+        @keyframes rain {
+            from {
+                transform: translateY(-100px);
+            }
+            to {
+                transform: translateY(calc(100vh + 100px));
+            }
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(13, 35, 55, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            animation: fadeInUp 1s ease;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent-teal), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 3s infinite;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        /* Cloud with Rain Animation */
+        .cloud-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .cloud-rain-icon {
+            font-size: 4rem;
+            animation: float 3s ease-in-out infinite;
+            color: var(--accent-teal);
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.7);
+            filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
+            position: relative;
+        }
+
+        .rain-drops {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rain-drops span {
+            display: block;
+            width: 2px;
+            height: 8px;
+            background: var(--accent-teal);
+            margin: 2px 0;
+            animation: rainDrops 1.5s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        .rain-drops span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .rain-drops span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes rainDrops {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(15px);
+                opacity: 0;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        label .required {
+            color: #ff6b6b;
+            margin-left: 3px;
+        }
+
+        label .optional {
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 0.85rem;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(20, 61, 102, 0.3);
+            border: 2px solid rgba(179, 224, 255, 0.2);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            background: rgba(20, 61, 102, 0.5);
+        }
+
+        .checkbox-group {
+            border: 2px solid rgba(179, 224, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            background: rgba(20, 61, 102, 0.2);
+        }
+
+        .checkbox-item {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 12px;
+            cursor: pointer;
+            transform: scale(1.2);
+            accent-color: var(--accent-teal);
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 400;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .checkbox-item:hover label {
+            color: var(--text-primary);
+        }
+
+        .verification-section {
+            border: 2px dashed var(--accent-teal);
+            border-radius: 8px;
+            padding: 25px;
+            background: rgba(0, 229, 255, 0.05);
+            margin-bottom: 25px;
+            animation: pulseBorder 3s infinite;
+        }
+
+        @keyframes pulseBorder {
+            0% { border-color: rgba(0, 229, 255, 0.5); }
+            50% { border-color: rgba(0, 229, 255, 0.9); }
+            100% { border-color: rgba(0, 229, 255, 0.5); }
+        }
+
+        .verification-title {
+            font-weight: 600;
+            color: var(--accent-teal);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .verification-note {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(20, 61, 102, 0.3);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-teal);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-teal));
+            color: var(--primary-dark);
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.6);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-submit:hover::after {
+            left: 100%;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .messages {
+            margin-bottom: 25px;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: rgba(40, 167, 69, 0.15);
+            color: #8affa8;
+            border-color: #28a745;
+        }
+        
+        .alert-error {
+            background: rgba(220, 53, 69, 0.15);
+            color: #ff8a8a;
+            border-color: #dc3545;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffd166;
+            border-color: #ffc107;
+        }
+        
+        .alert-info {
+            background: rgba(23, 162, 184, 0.15);
+            color: #7ae1ff;
+            border-color: #17a2b8;
+        }
+        
+        .alert-icon {
+            font-size: 20px;
+        }
+        
+        .close-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .close-btn:hover {
+            opacity: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px var(--glow-color); }
+            50% { text-shadow: 0 0 20px var(--accent-teal), 0 0 30px var(--glow-color); }
+            100% { text-shadow: 0 0 10px var(--glow-color); }
+        }
+
+        /* Responsive Styles */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .cloud-rain-icon {
+                font-size: 3.5rem;
+            }
+        }
+
+        @media screen and (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .checkbox-group {
+                padding: 15px;
+            }
+            
+            .verification-section {
+                padding: 20px;
+            }
+            
+            .cloud-rain-icon {
+                font-size: 3rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Rain Animation -->
+    <div class="rain-container" id="rainContainer"></div>
+
+    <div class="container">
+          <div class="cloud-container">
+            <div class="cloud-rain-icon">
+                ☁️
+                <div class="rain-drops">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <h1> Vendor Registration</h1>
+        <p class="subtitle">Join our rainwater harvesting service providers network</p>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" id="message-{{ forloop.counter }}">
+                <span class="alert-icon">
+                    {% if message.tags == 'success' %}✅
+                    {% elif message.tags == 'error' %}❌
+                    {% elif message.tags == 'warning' %}⚠️
+                    {% else %}ℹ️{% endif %}
+                </span>
+                <span>{{ message }}</span>
+                <button class="close-btn" onclick="closeMessage('message-{{ forloop.counter }}')">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form id="vendorForm" method="POST" action="{% url 'vendorRegistration:vendor_register' %}">
+            {% csrf_token %}
+            
+            <!-- Shop Name -->
+            <div class="form-group">
+                <label for="shopName">Shop Name <span class="required">*</span></label>
+                <input type="text" id="shopName" name="shop_name" required 
+                       placeholder="e.g., Sharma Plumbing Works">
+            </div>
+            
+            <!-- Owner Name -->
+            <div class="form-group">
+                <label for="ownerName">Owner Name <span class="required">*</span></label>
+                <input type="text" id="ownerName" name="owner_name" required 
+                       placeholder="e.g., Rajesh Sharma">
+            </div>
+            
+            <!-- Phone Number -->
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number <span class="required">*</span></label>
+                <input type="tel" id="phoneNumber" name="phone_number" required 
+                       placeholder="e.g., 9876543210" pattern="[0-9]{10}">
+                <p class="help-text">Enter 10 digit mobile number</p>
+            </div>
+            
+            <!-- WhatsApp Number -->
+            <div class="form-group">
+                <label for="whatsappNumber">WhatsApp Number <span class="optional">(Optional)</span></label>
+                <input type="tel" id="whatsappNumber" name="whatsapp_number" 
+                       placeholder="e.g., 9876543210" pattern="[0-9]{10}">
+                <p class="help-text">Leave blank if same as phone number</p>
+            </div>
+            
+            <!-- Service Category -->
+            <div class="form-group">
+                <label>Services Offered <span class="required">*</span></label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service1" name="services" value="Tank Supply & Installation">
+                        <label for="service1">Tank Supply & Installation</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service2" name="services" value="Water Storage Tanks">
+                        <label for="service2">Water Storage Tanks (Overhead/Underground)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service3" name="services" value="First Flush & Filters">
+                        <label for="service3">First Flush Diverters & Filters</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service4" name="services" value="Recharge Pit Construction">
+                        <label for="service4">Recharge Pit Construction</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service5" name="services" value="Groundwater Recharge">
+                        <label for="service5">Groundwater Recharge Systems</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service6" name="services" value="Roof Catchment Systems">
+                        <label for="service6">Roof Catchment Systems</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service7" name="services" value="Plumbing & Installation">
+                        <label for="service7">Plumbing & Pipe Installation</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service8" name="services" value="Maintenance & Cleaning">
+                        <label for="service8">Maintenance & Cleaning Services</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service9" name="services" value="Consultation">
+                        <label for="service9">Rainwater Harvesting Consultation</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service10" name="services" value="System Design">
+                        <label for="service10">System Design & Planning</label>
+                    </div>
+                </div>
+                <p class="help-text">Select all services you provide</p>
+            </div>
+            
+            <!-- District -->
+            <div class="form-group">
+                <label for="district">District <span class="required">*</span></label>
+                <input type="text" id="district" name="district" required 
+                       placeholder="e.g., Mumbai">
+            </div>
+            
+            <!-- Pincode -->
+            <div class="form-group">
+                <label for="pincode">Pincode <span class="required">*</span></label>
+                <input type="text" id="pincode" name="pincode" required 
+                       placeholder="e.g., 400001" pattern="[0-9]{6}">
+                <p class="help-text">Enter 6 digit pincode</p>
+            </div>
+            
+            <!-- Verification Section -->
+            <div class="verification-section">
+                <div class="verification-title">📋 Business Verification</div>
+                <div class="verification-note">
+                    <strong>Note:</strong> Provide at least one - PAN or GSTIN (both can be provided)
+                </div>
+                
+                <div class="form-group">
+                    <label for="panNumber">PAN Number</label>
+                    <input type="text" id="panNumber" name="pan_number" 
+                           placeholder="e.g., ABCDE1234F" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+                    <p class="help-text">Format: ABCDE1234F (10 characters)</p>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="gstinNumber">GSTIN Number</label>
+                    <input type="text" id="gstinNumber" name="gstin_number" 
+                           placeholder="e.g., 22ABCDE1234F1Z5" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}[Z]{1}[0-9A-Z]{1}">
+                    <p class="help-text">Format: 22ABCDE1234F1Z5 (15 characters)</p>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-submit">Register as Vendor</button>
+        </form>
+    </div>
+
+    <script>
+        
+        // Create raindrops
+        function createRaindrops() {
+            const rainContainer = document.getElementById('rainContainer');
+            const raindropCount = 100;
+            
+            for (let i = 0; i < raindropCount; i++) {
+                const raindrop = document.createElement('div');
+                raindrop.className = 'rain-drop';
+                
+                // Random properties for each raindrop
+                const left = Math.random() * 100;
+                const animationDuration = 0.5 + Math.random() * 0.5;
+                const animationDelay = Math.random() * 2;
+                const opacity = 0.3 + Math.random() * 0.4;
+                const height = 15 + Math.random() * 15;
+                
+                raindrop.style.left = `${left}%`;
+                raindrop.style.animationDuration = `${animationDuration}s`;
+                raindrop.style.animationDelay = `${animationDelay}s`;
+                raindrop.style.opacity = opacity;
+                raindrop.style.height = `${height}px`;
+                
+                rainContainer.appendChild(raindrop);
+            }
+        }
+
+        // Close message function
+        function closeMessage(id) {
+            const element = document.getElementById(id);
+            element.style.animation = 'slideUp 0.3s ease';
+            setTimeout(() => element.remove(), 300);
+        }
+        
+        // Auto-hide success messages after 10 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMessages = document.querySelectorAll('.alert-success');
+            successMessages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.animation = 'slideUp 0.3s ease';
+                    setTimeout(() => msg.remove(), 300);
+                }, 10000); // 10 seconds
+            });
+        });
+        
+        // Form validation (your existing code)
+        document.getElementById('vendorForm').addEventListener('submit', function(e) {
+            const checkboxes = document.querySelectorAll('input[name="services"]:checked');
+            if (checkboxes.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one service category');
+                return;
+            }
+            
+            const pan = document.getElementById('panNumber').value.trim();
+            const gstin = document.getElementById('gstinNumber').value.trim();
+            
+            if (!pan && !gstin) {
+                e.preventDefault();
+                alert('Please provide either PAN Number or GSTIN Number for verification');
+                return;
+            }
+        });
+    
+
+        document.getElementById('vendorForm').addEventListener('submit', function(e) {
+            // Validate at least one service is selected
+            const checkboxes = document.querySelectorAll('input[name="services"]:checked');
+            if (checkboxes.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one service category');
+                return;
+            }
+            
+            // Validate at least one verification field (PAN or GSTIN)
+            const pan = document.getElementById('panNumber').value.trim();
+            const gstin = document.getElementById('gstinNumber').value.trim();
+            
+            if (!pan && !gstin) {
+                e.preventDefault();
+                alert('Please provide either PAN Number or GSTIN Number for verification');
+                return;
+            }
+        });
+
+         // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createRaindrops();
+        });
+    </script>
+</body>
+</html>
